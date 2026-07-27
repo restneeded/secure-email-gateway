@@ -1,0 +1,11 @@
+node_modules
+.git
+.github
+.env
+storage
+prisma/dev.db
+prisma/dev.db-journal
+*.log
+.DS_Store
+Dockerfile
+docker-compose.yml

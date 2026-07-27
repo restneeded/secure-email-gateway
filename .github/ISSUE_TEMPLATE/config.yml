@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/restneeded/secure-email-gateway/security/advisories/new
+    about: Report privately via GitHub security advisories. Do not file a public issue.

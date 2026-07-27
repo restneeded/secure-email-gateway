@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  role              String    @default("user")     // "user" | "admin"
+  disabled          Boolean   @default(false)
+  failedLoginCount  Int       @default(0)
+  lockedUntil       DateTime?
+  createdAt         DateTime  @default(now())
+  sessions          Session[]
+  otps              OtpToken[]
+  auditEvents       AuditLog[]
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  token          String    @unique
+  senderEmail    String
+  recipientEmail String
+  subject        String
+  bodyIv         String
+  bodyTag        String
+  bodyCipher     String
+  headersJson    String
+  createdAt      DateTime  @default(now())
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  firstOpenedAt  DateTime?
+  openCount      Int       @default(0)
+  attachments    Attachment[]
+}
+
+model Attachment {
+  id            String   @id @default(cuid())
+  messageId     String
+  message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  idx           Int
+  filename      String
+  contentType   String
+  size          Int
+  iv            String
+  tag           String
+  storagePath   String                    // path relative to STORAGE_ROOT
+  createdAt     DateTime @default(now())
+
+  @@unique([messageId, idx])
+}
+
+model Session {
+  id         String   @id
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrfToken  String
+  ip         String?
+  ua         String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  expiresAt  DateTime
+}
+
+model OtpToken {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash     String
+  purpose      String                        // "signup" | "login"
+  attempts     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime
+  consumedAt   DateTime?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  ts        DateTime @default(now())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String                    // e.g. "message.revoke", "user.disable", "login.ok"
+  target    String?                   // free-form: token / userId / ip
+  ip        String?
+  ua        String?
+  meta      String?                   // JSON stringified extra
+}
+
+model MailConfig {
+  id           String   @id @default("main")
+  smtpHost     String
+  smtpPort     Int      @default(587)
+  smtpSecure   Boolean  @default(false)
+  smtpUser     String   @default("")
+  smtpPassIv   String   @default("")
+  smtpPassTag  String   @default("")
+  smtpPassCt   String   @default("")
+  fromName     String   @default("Secure Mail")
+  fromEmail    String   @default("secure@Secure.org")
+  enabled      Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+  updatedById  String?
+}

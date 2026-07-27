@@ -1,0 +1,40 @@
+services:
+  portal:
+    build: .
+    image: secure-email-gateway:latest
+    container_name: seg-portal
+    command: >
+      sh -c "npx prisma db push --skip-generate && node src/portal.js"
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - PORTAL_PORT=3010
+      - STORAGE_ROOT=/app/storage
+    ports:
+      - "3010:3010"
+    volumes:
+      - data:/app/prisma
+      - storage:/app/storage
+    restart: unless-stopped
+
+  gateway:
+    image: secure-email-gateway:latest
+    container_name: seg-gateway
+    depends_on:
+      - portal
+    command: ["node", "src/gateway.js"]
+    env_file: .env
+    environment:
+      - GATEWAY_HOST=0.0.0.0
+      - GATEWAY_PORT=2525
+      - STORAGE_ROOT=/app/storage
+    ports:
+      - "2525:2525"
+    volumes:
+      - data:/app/prisma
+      - storage:/app/storage
+    restart: unless-stopped
+
+volumes:
+  data:
+  storage:

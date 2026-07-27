@@ -1,0 +1,57 @@
+{
+  "name": "secure-email-gateway",
+  "version": "0.2.0",
+  "description": "Self-hosted email encryption gateway. [secure]-tagged mail is stored encrypted (body + attachments, AES-256-GCM); recipients unlock via a portal with password + email OTP. Ships with an admin panel.",
+  "license": "MIT",
+  "author": "restneeded",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/restneeded/secure-email-gateway.git"
+  },
+  "bugs": {
+    "url": "https://github.com/restneeded/secure-email-gateway/issues"
+  },
+  "homepage": "https://github.com/restneeded/secure-email-gateway#readme",
+  "keywords": [
+    "email",
+    "encryption",
+    "smtp",
+    "gateway",
+    "secure-messaging",
+    "self-hosted",
+    "aes-256-gcm",
+    "zoho",
+    "postfix"
+  ],
+  "private": false,
+  "type": "commonjs",
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "gateway": "node src/gateway.js",
+    "portal": "node src/portal.js",
+    "dev": "concurrently -k -n GW,WEB -c cyan,magenta \"npm run gateway\" \"npm run portal\"",
+    "create-admin": "node scripts/create-admin.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "argon2": "^0.41.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "mailparser": "^3.9.14",
+    "nodemailer": "^9.0.3",
+    "smtp-server": "^3.19.2",
+    "sanitize-html": "^2.13.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prisma": "^5.22.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
